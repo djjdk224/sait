@@ -10,8 +10,6 @@
   <div class="wrap">
     <header>
       <p>Магазин Электроники · V05</p>
-      <p>Учебная версия 1</p>
-      <p>Учебная версия 2</p>
       <nav>
         <a href="index.html">Главная</a>
         <a href="catalog.html" aria-current="page">Каталог</a>
@@ -23,30 +21,17 @@
       <h1>Бытовая техника</h1>
       <p>Выберите нужный прибор</p>
 
-      <!-- Поиск -->
       <form class="search" role="search" onsubmit="return false;">
         <label for="catalog-search">Поиск по каталогу</label>
         <div class="search__row">
-          <input
-            id="catalog-search"
-            type="search"
-            name="q"
-            placeholder="Чайник, пылесос, утюг…"
-            autocomplete="off"
-          >
+          <input id="catalog-search" type="search" name="q" placeholder="Чайник, пылесос, утюг…" autocomplete="off">
           <button type="button" id="search-clear" aria-label="Очистить поиск">×</button>
         </div>
-        <p id="search-hint" class="search__hint">
-          Например: «чайник», «для дома», «1500»
-        </p>
         <p id="search-status" class="search__status" role="status" aria-live="polite"></p>
       </form>
 
       <div id="catalog" class="catalog"></div>
-
-      <p id="catalog-empty" class="catalog__empty" hidden>
-        Ничего не найдено. Попробуйте другой запрос.
-      </p>
+      <p id="catalog-empty" class="catalog__empty" hidden>Ничего не найдено. Попробуйте другой запрос.</p>
     </main>
 
     <footer>
@@ -58,32 +43,10 @@
     (function () {
       'use strict';
 
-      // ИЗМЕНЕНО (032): Массив данных под магазин электроники
       const items = [
-        {
-          id: "item1",
-          title: "Электрочайник",
-          genre: "Бытовая техника",
-          pages: 1500, // Используем pages как цену для фильтрации
-          desc: "Мощность 2 кВт, объем 1.7 л, нержавеющая сталь",
-          image: "item1.png" // Замени на свою картинку чайника
-        },
-        {
-          id: "item2",
-          title: "Робот-пылесос",
-          genre: "Умный дом",
-          pages: 12000,
-          desc: "Автоматическая уборка, построение карты помещения",
-          image: "item2.png" // Замени на свою картинку пылесоса
-        },
-        {
-          id: "item3",
-          title: "Утюг с парогенератором",
-          genre: "Бытовая техника",
-          pages: 3500,
-          desc: "Мощный пар, керамическая подошва, защита от накипи",
-          image: "item3.png" // Замени на свою картинку утюга
-        }
+        { id: "item1", title: "Электрочайник", genre: "Бытовая техника", price: 1500, desc: "Мощность 2 кВт, объем 1.7 л, нержавеющая сталь", image: "images/item1.png" },
+        { id: "item2", title: "Робот-пылесос", genre: "Умный дом", price: 12000, desc: "Автоматическая уборка, построение карты помещения", image: "images/item2.png" },
+        { id: "item3", title: "Утюг с парогенератором", genre: "Бытовая техника", price: 3500, desc: "Мощный пар, керамическая подошва, защита от накипи", image: "images/item3.png" }
       ];
 
       const input = document.getElementById('catalog-search');
@@ -96,17 +59,8 @@
         return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
       }
 
-      // Форма слова для рублей
-      function priceLabel(n) {
-        const mod10 = n % 10, mod100 = n % 100;
-        if (mod10 === 1 && mod100 !== 11) return 'рубль';
-        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'рубля';
-        return 'рублей';
-      }
-
       function renderCatalog(list) {
         catalogContainer.innerHTML = '';
-        
         list.forEach(item => {
           const card = document.createElement('article');
           card.className = 'catalog__item';
@@ -115,7 +69,6 @@
             const photo = document.createElement('img');
             photo.src = item.image;
             photo.alt = item.title;
-            photo.width = 280;
             card.append(photo);
           }
 
@@ -124,8 +77,7 @@
           card.append(title);
 
           const meta = document.createElement('p');
-          // Выводим цену вместо страниц
-          meta.textContent = `${item.genre} · ${item.pages} ${priceLabel(item.pages)}`;
+          meta.textContent = `${item.genre} · ${item.price} ₽`;
           card.append(meta);
 
           const desc = document.createElement('p');
@@ -139,9 +91,8 @@
       function filterByText(query) {
         const q = norm(query);
         if (!q) return items;
-        
         return items.filter(item => {
-          const haystack = norm(`${item.title} ${item.genre} ${item.pages} ${item.desc}`);
+          const haystack = norm(`${item.title} ${item.genre} ${item.price} ${item.desc}`);
           return haystack.includes(q);
         });
       }
@@ -190,17 +141,5 @@
       }
     })();
   </script>
-
-  <style>
-    .search { margin: 1.25rem 0 1.5rem; }
-    .search label { display: block; font-weight: 600; margin-bottom: .35rem; }
-    .search__row { display: flex; gap: .5rem; }
-    .search__row input { flex: 1 1 auto; padding: .55rem .75rem; font: inherit; border: 1px solid #bbb; border-radius: 6px; }
-    .search__row button { flex: 0 0 auto; width: 2.5rem; font: inherit; font-size: 1.25rem; border: 1px solid #bbb; border-radius: 6px; background: #f6f6f6; cursor: pointer; }
-    .catalog__item[hidden] { display: none !important; }
-    .catalog__empty { padding: 1rem; border: 1px dashed #ccc; border-radius: 6px; }
-    .catalog { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-    .catalog__item { display: flex; flex-direction: column; align-items: center; }
-  </style>
 </body>
 </html>
