@@ -1,3 +1,70 @@
+body {
+  background-color: #FFF4E8;
+  color: #442D21;
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 { color: #974414; }
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+nav a {
+  display: block;
+  padding: 8px 12px;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+nav a:hover,
+nav a:focus-visible {
+  text-decoration: underline;
+}
+
+form {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+form p { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.search { margin: 1.25rem 0 1.5rem; text-align: left; }
+.search__row { display: flex; gap: .5rem; }
+.search__row input { flex: 1 1 auto; }
+.search__row button {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  font-size: 1.25rem;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: #f6f6f6;
+  cursor: pointer;
+}
+
 .catalog {
   display: grid;
   gap: 1.5rem;
@@ -16,8 +83,17 @@
 }
 
 .catalog__item img {
-  border-radius: 4px;
   margin-bottom: 0.5rem;
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
+}
+
+.catalog__empty {
+  padding: 1rem;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  margin-top: 20px;
 }
 
 #result {
@@ -26,4 +102,5 @@
   font-size: 1.2em;
   color: #974414;
   min-height: 1.5em;
+  text-align: center;
 }
