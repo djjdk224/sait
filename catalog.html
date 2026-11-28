@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Каталог — Книжная полка · V05</title>
+  <title>Каталог — Магазин Электроники · V05</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="wrap">
     <header>
-      <p>Книжная полка · V05</p>
+      <p>Магазин Электроники · V05</p>
       <p>Учебная версия 1</p>
       <p>Учебная версия 2</p>
       <nav>
@@ -20,8 +20,8 @@
     </header>
 
     <main>
-      <h1>Что почитать?</h1>
-      <p>Выберите одну из трёх позиций</p>
+      <h1>Бытовая техника</h1>
+      <p>Выберите нужный прибор</p>
 
       <!-- Поиск -->
       <form class="search" role="search" onsubmit="return false;">
@@ -31,58 +31,18 @@
             id="catalog-search"
             type="search"
             name="q"
-            placeholder="Название, жанр, описание…"
+            placeholder="Чайник, пылесос, утюг…"
             autocomplete="off"
-            aria-describedby="search-hint"
           >
           <button type="button" id="search-clear" aria-label="Очистить поиск">×</button>
         </div>
         <p id="search-hint" class="search__hint">
-          Например: «детектив», «море», «240»
+          Например: «чайник», «для дома», «1500»
         </p>
         <p id="search-status" class="search__status" role="status" aria-live="polite"></p>
       </form>
 
-      <div id="catalog" class="catalog">
-        <article
-          class="catalog__item"
-          data-title="Путешествие к морю"
-          data-genre="Приключения"
-          data-pages="180"
-          data-desc="Дорога, новые встречи и открытия"
-        >
-          <h2>Путешествие к морю</h2>
-          <img src="images/item1.png" alt="Обложка книги «Путешествие к морю»" width="280">
-          <p>Приключения · 180 страниц</p>
-          <p>Дорога, новые встречи и открытия</p>
-        </article>
-
-        <article
-          class="catalog__item"
-          data-title="Город будущего"
-          data-genre="Фантастика"
-          data-pages="320"
-          data-desc="Технологии и выбор главных героев"
-        >
-          <h2>Город будущего</h2>
-          <img src="images/item2.png" alt="Обложка книги «Город будущего»" width="280">
-          <p>Фантастика · 320 страниц</p>
-          <p>Технологии и выбор главных героев</p>
-        </article>
-
-        <article
-          class="catalog__item"
-          data-title="Тайна старого дома"
-          data-genre="Детектив"
-          data-pages="240"
-          data-desc="История загадки и внимательного поиска"
-        >
-          <h2>Тайна старого дома</h2>
-          <img src="images/item3.png" alt="Обложка книги «Тайна старого дома»" width="280">
-          <p>Детектив · 240 страниц</p>
-          <p>История загадки и внимательного поиска</p>
-        </article>
-      </div>
+      <div id="catalog" class="catalog"></div>
 
       <p id="catalog-empty" class="catalog__empty" hidden>
         Ничего не найдено. Попробуйте другой запрос.
@@ -98,195 +58,149 @@
     (function () {
       'use strict';
 
-      var input   = document.getElementById('catalog-search');
-      var clearBtn= document.getElementById('search-clear');
-      var status  = document.getElementById('search-status');
-      var empty   = document.getElementById('catalog-empty');
-      var items   = Array.prototype.slice.call(
-        document.querySelectorAll('.catalog__item')
-      );
+      // ИЗМЕНЕНО (032): Массив данных под магазин электроники
+      const items = [
+        {
+          id: "item1",
+          title: "Электрочайник",
+          genre: "Бытовая техника",
+          pages: 1500, // Используем pages как цену для фильтрации
+          desc: "Мощность 2 кВт, объем 1.7 л, нержавеющая сталь",
+          image: "item1.png" // Замени на свою картинку чайника
+        },
+        {
+          id: "item2",
+          title: "Робот-пылесос",
+          genre: "Умный дом",
+          pages: 12000,
+          desc: "Автоматическая уборка, построение карты помещения",
+          image: "item2.png" // Замени на свою картинку пылесоса
+        },
+        {
+          id: "item3",
+          title: "Утюг с парогенератором",
+          genre: "Бытовая техника",
+          pages: 3500,
+          desc: "Мощный пар, керамическая подошва, защита от накипи",
+          image: "item3.png" // Замени на свою картинку утюга
+        }
+      ];
 
-      // Нормализация: нижний регистр, ё→е, схлопывание пробелов, trim
+      const input = document.getElementById('catalog-search');
+      const clearBtn = document.getElementById('search-clear');
+      const status = document.getElementById('search-status');
+      const empty = document.getElementById('catalog-empty');
+      const catalogContainer = document.getElementById('catalog');
+
       function norm(s) {
-        return String(s || '')
-          .toLowerCase()
-          .replace(/ё/g, 'е')
-          .replace(/\s+/g, ' ')
-          .trim();
+        return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
       }
 
-      // Экранирование regexp-спецсимволов
-      function escapeRegExp(s) {
-        return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Форма слова для рублей
+      function priceLabel(n) {
+        const mod10 = n % 10, mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return 'рубль';
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'рубля';
+        return 'рублей';
       }
 
-      // Форма слова для "страница/страницы/страниц"
-      function pagesLabel(n) {
-        var mod10 = n % 10, mod100 = n % 100;
-        if (mod10 === 1 && mod100 !== 11) return 'страница';
-        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'страницы';
-        return 'страниц';
-      }
-
-      // Подсветка совпадений в текстовых узлах элемента
-      function highlight(el, query) {
-        // сначала убираем старую подсветку
-        el.querySelectorAll('mark').forEach(function (m) {
-          var parent = m.parentNode;
-          parent.replaceChild(document.createTextNode(m.textContent), m);
-          parent.normalize();
-        });
-        if (!query) return;
-
-        var re = new RegExp('(' + escapeRegExp(query) + ')', 'gi');
-
-        // Обходим только текстовые узлы (не трогаем alt, атрибуты и т.п.)
-        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-          acceptNode: function (node) {
-            if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-            return NodeFilter.FILTER_ACCEPT;
+      function renderCatalog(list) {
+        catalogContainer.innerHTML = '';
+        
+        list.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'catalog__item';
+          
+          if (item.image) {
+            const photo = document.createElement('img');
+            photo.src = item.image;
+            photo.alt = item.title;
+            photo.width = 280;
+            card.append(photo);
           }
-        });
 
-        var nodes = [];
-        while (walker.nextNode()) nodes.push(walker.currentNode);
+          const title = document.createElement('h2');
+          title.textContent = item.title;
+          card.append(title);
 
-        nodes.forEach(function (node) {
-          var text = node.nodeValue;
-          // Учитываем ё→е: ищем и по оригиналу, и по нормализованному
-          if (!re.test(text) && !re.test(text.replace(/ё/gi, 'е'))) return;
-          re.lastIndex = 0;
+          const meta = document.createElement('p');
+          // Выводим цену вместо страниц
+          meta.textContent = `${item.genre} · ${item.pages} ${priceLabel(item.pages)}`;
+          card.append(meta);
 
-          var frag = document.createDocumentFragment();
-          var lastIndex = 0;
-          var m;
-          while ((m = re.exec(text)) !== null) {
-            if (m.index > lastIndex) {
-              frag.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
-            }
-            var mark = document.createElement('mark');
-            mark.textContent = m[0];
-            frag.appendChild(mark);
-            lastIndex = m.index + m[0].length;
-            if (m[0].length === 0) re.lastIndex++; // защита от зацикливания
-          }
-          if (lastIndex < text.length) {
-            frag.appendChild(document.createTextNode(text.slice(lastIndex)));
-          }
-          node.parentNode.replaceChild(frag, node);
+          const desc = document.createElement('p');
+          desc.textContent = item.desc;
+          card.append(desc);
+
+          catalogContainer.append(card);
         });
       }
 
-      // Основная функция фильтрации
+      function filterByText(query) {
+        const q = norm(query);
+        if (!q) return items;
+        
+        return items.filter(item => {
+          const haystack = norm(`${item.title} ${item.genre} ${item.pages} ${item.desc}`);
+          return haystack.includes(q);
+        });
+      }
+
       function applyFilter(rawQuery) {
-        var query = norm(rawQuery);
-        var visible = 0;
+        const filtered = filterByText(rawQuery);
+        renderCatalog(filtered);
 
-        items.forEach(function (item) {
-          var haystack = norm([
-            item.dataset.title,
-            item.dataset.genre,
-            item.dataset.pages + ' ' + pagesLabel(Number(item.dataset.pages)),
-            item.dataset.desc
-          ].join(' '));
-
-          var match = query === '' || haystack.indexOf(query) !== -1;
-
-          item.hidden = !match;
-          item.classList.toggle('is-match', match && query !== '');
-
-          highlight(item, query);
-          if (match) visible++;
-        });
-
-        // Статус и пустое состояние
-        if (query === '') {
+        if (rawQuery.trim() === '') {
           status.textContent = '';
           empty.hidden = true;
-        } else if (visible === 0) {
+        } else if (filtered.length === 0) {
           status.textContent = 'Найдено: 0';
           empty.hidden = false;
         } else {
-          status.textContent = 'Найдено: ' + visible + ' из ' + items.length;
+          status.textContent = `Найдено: ${filtered.length} из ${items.length}`;
           empty.hidden = true;
         }
 
-        // Сохраняем запрос в URL (без перезагрузки)
-        var url = new URL(window.location.href);
-        if (query) url.searchParams.set('q', rawQuery.trim());
-        else url.searchParams.delete('q');
-        history.replaceState(null, '', url);
+        if (rawQuery.trim()) {
+          localStorage.setItem('catalogQuery', rawQuery.trim());
+        } else {
+          localStorage.removeItem('catalogQuery');
+        }
       }
 
-      // Дебаунс, чтобы не дёргать DOM на каждый символ
-      var t;
+      let t;
       function onInput() {
         clearTimeout(t);
-        t = setTimeout(function () {
-          applyFilter(input.value);
-        }, 120);
+        t = setTimeout(() => applyFilter(input.value), 120);
       }
 
       input.addEventListener('input', onInput);
-      input.addEventListener('search', onInput); // кнопка «×» у type=search
-
-      clearBtn.addEventListener('click', function () {
+      clearBtn.addEventListener('click', () => {
         input.value = '';
         input.focus();
         applyFilter('');
       });
 
-      // Esc — очистить
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && input.value !== '') {
-          e.preventDefault();
-          input.value = '';
-          applyFilter('');
-        }
-      });
-
-      // Инициализация из URL (?q=...)
-      var initial = new URL(window.location.href).searchParams.get('q') || '';
-      if (initial) {
-        input.value = initial;
-        applyFilter(initial);
+      const savedQuery = localStorage.getItem('catalogQuery') || '';
+      if (savedQuery) {
+        input.value = savedQuery;
+        applyFilter(savedQuery);
+      } else {
+        renderCatalog(items);
       }
     })();
   </script>
 
   <style>
-    /* Минимальные стили поиска — можно перенести в style.css */
     .search { margin: 1.25rem 0 1.5rem; }
     .search label { display: block; font-weight: 600; margin-bottom: .35rem; }
     .search__row { display: flex; gap: .5rem; }
-    .search__row input {
-      flex: 1 1 auto;
-      padding: .55rem .75rem;
-      font: inherit;
-      border: 1px solid #bbb;
-      border-radius: 6px;
-    }
-    .search__row input:focus-visible {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 2px;
-    }
-    .search__row button {
-      flex: 0 0 auto;
-      width: 2.5rem;
-      font: inherit;
-      font-size: 1.25rem;
-      line-height: 1;
-      border: 1px solid #bbb;
-      border-radius: 6px;
-      background: #f6f6f6;
-      cursor: pointer;
-    }
-    .search__row button:hover { background: #ececec; }
-    .search__hint { margin: .35rem 0 0; font-size: .875rem; color: #555; }
-    .search__status { margin: .35rem 0 0; font-size: .875rem; min-height: 1.2em; }
+    .search__row input { flex: 1 1 auto; padding: .55rem .75rem; font: inherit; border: 1px solid #bbb; border-radius: 6px; }
+    .search__row button { flex: 0 0 auto; width: 2.5rem; font: inherit; font-size: 1.25rem; border: 1px solid #bbb; border-radius: 6px; background: #f6f6f6; cursor: pointer; }
     .catalog__item[hidden] { display: none !important; }
-    .catalog__item mark { background: #ffe58a; padding: 0 .1em; border-radius: 2px; }
     .catalog__empty { padding: 1rem; border: 1px dashed #ccc; border-radius: 6px; }
+    .catalog { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .catalog__item { display: flex; flex-direction: column; align-items: center; }
   </style>
 </body>
 </html>
