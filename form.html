@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Форма — Книжная полка · V05</title>
+  <title>Форма — Магазин Электроники · V05</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <p>Книжная полка · V05</p>
+    <p>Магазин Электроники · V05</p>
     <nav>
       <a href="index.html">Главная</a>
       <a href="catalog.html">Каталог</a>
@@ -16,66 +16,89 @@
   </header>
 
   <main>
-    <h1>Заявка на книгу</h1>
-    <p>Учебная форма. Данные пока не сохраняются.</p>
+    <h1>Оформление заказа</h1>
+    <p>Учебная форма.</p>
 
-    <form method="get">
+    <form id="form" method="get">
       <p>
-        <label for="count">Количество экземпляров</label>
-        <input id="count" name="count" type="number"
-               min="1" step="1" value="3" required>
+        <label for="count">Количество</label>
+        <input id="count" name="count" type="number" min="1" step="1" value="1" required>
       </p>
 
       <p>
-        <label for="wishes">Пожелания к выдаче</label>
-        <textarea id="wishes" name="wishes" rows="4"
-                  placeholder="Опишите ваши пожелания"></textarea>
+        <label for="wishes">Комментарий к заказу</label>
+        <textarea id="wishes" name="wishes" rows="4"></textarea>
       </p>
 
       <p>
-        <label for="book">Название книги</label>
+        <label for="book">Выберите товар</label>
         <select id="book" name="book" required>
           <option value="">Выберите из списка</option>
-          <option value="item1">Путешествие к морю</option>
-          <option value="item2">Город будущего</option>
-          <option value="item3">Тайна старого дома</option>
+          <!-- ИЗМЕНЕНО: Товары и их цены (data-price) -->
+          <option value="item1" data-price="1500">Электрочайник</option>
+          <option value="item2" data-price="12000">Робот-пылесос</option>
+          <option value="item3" data-price="3500">Утюг с парогенератором</option>
         </select>
       </p>
 
-      <p>
-        <label for="level">Объём книги</label>
-        <input id="level" name="level" type="range"
-               min="1" max="5" step="1" value="3">
-        <span>Короткая</span>
-        <span>Большая</span>
-      </p>
-
       <fieldset>
-        <legend>Дополнительные возможности и обратная связь</legend>
-
+        <legend>Дополнительно</legend>
         <p>
           <input id="extra1" name="extra1" type="checkbox" value="yes" checked>
-          <label for="extra1">Нужна закладка</label>
+          <label for="extra1">Нужна доставка</label>
         </p>
-
         <p>
           <input id="extra2" name="extra2" type="checkbox" value="yes">
-          <label for="extra2">Нужен крупный шрифт</label>
-        </p>
-
-        <p>
-          <label for="email">Электронная почта для обратной связи</label>
-          <input id="email" name="email" type="email"
-                 placeholder="student@example.com">
+          <label for="extra2">Нужна установка</label>
         </p>
       </fieldset>
 
-      <button type="submit">Оставить заявку</button>
+      <button type="submit">Оформить заказ</button>
     </form>
+
+    <div id="result" style="margin-top: 20px; font-weight: bold; font-size: 1.2em;"></div>
   </main>
 
   <footer>
     <p>Учебный прототип · Вариант 05</p>
   </footer>
+
+  <script>
+    const form = document.getElementById('form');
+    const result = document.getElementById('result');
+    const countInput = document.getElementById('count');
+    const bookSelect = document.getElementById('book');
+
+    // Очистка старого результата при вводе
+    form.addEventListener('input', function () {
+      result.textContent = "";
+    });
+
+    // Функция расчета
+    function getResult(quantity, unitValue, extraValue) {
+      const total = quantity * unitValue + extraValue;
+      return `Итого: ${total} ₽`;
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const quantity = Number(countInput.value);
+      const selectedOption = bookSelect.options[bookSelect.selectedIndex];
+      
+      if (!countInput.value || quantity <= 0 || !Number.isInteger(quantity)) {
+        result.textContent = "Ошибка: введите целое число больше 0";
+        return;
+      }
+
+      if (!bookSelect.value) {
+        result.textContent = "Ошибка: выберите товар";
+        return;
+      }
+
+      const price = Number(selectedOption.dataset.price);
+      result.textContent = getResult(quantity, price, 0);
+    });
+  </script>
 </body>
 </html>
